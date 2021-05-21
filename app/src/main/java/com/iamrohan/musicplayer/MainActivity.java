@@ -12,16 +12,19 @@ import androidx.viewpager.widget.ViewPager;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.google.android.material.tabs.TabLayout;
 
 import java.util.ArrayList;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -29,12 +32,32 @@ public class MainActivity extends AppCompatActivity {
 
     static ArrayList<MusicFiles> musicFiles;
 
+    static ArrayList<MusicFiles> albums = new ArrayList<>();
+
+    FrameLayout frag_bottom_player;
+
+
+    public static final String MUSIC_LAST_PLAYED = "LAST_PLAYED";
+    public static final String MUSIC_FILE = "STORED_MUSIC";
+    public static boolean SHOW_MINI_PLAYER = false;
+
+    public static String PATH_TO_FRAG = null;
+    public static String SONG_NAME_TO_FRAG = null;
+    public static String ARTIST_TO_FRAG = null;
+
+    public static final String ARTIST_NAME= "ARTIST_NAME";
+    public static final String SONG_NAME = "SONG_NAME";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
         permission();
+
+
     }
 
     private void permission() {
@@ -113,6 +136,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public static ArrayList<MusicFiles> getAllAudio(Context context){
+        ArrayList<String> duplicate = new ArrayList<>();
         ArrayList<MusicFiles> tempAudioList = new ArrayList<>();
         Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         String[] projection = {
@@ -136,9 +160,37 @@ public class MainActivity extends AppCompatActivity {
 
                 MusicFiles musicFiles = new MusicFiles(path , title , artist , album , duration);
                 tempAudioList.add(musicFiles);
+                if(!duplicate.contains(album)){
+                    albums.add(musicFiles);
+                    duplicate.add(album);
+                }
             }
             cursor.close();
         }
         return tempAudioList;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        SharedPreferences pref = getSharedPreferences(MUSIC_LAST_PLAYED, MODE_PRIVATE);
+        String path = pref.getString(MUSIC_FILE , null);
+
+
+        String artist = pref.getString(ARTIST_NAME,null);
+        String song_name = pref.getString(SONG_NAME , null);
+
+        if(path != null){
+            SHOW_MINI_PLAYER = true;
+            PATH_TO_FRAG = path;
+            ARTIST_TO_FRAG = artist;
+            SONG_NAME_TO_FRAG = song_name;
+
+        }else{
+            SHOW_MINI_PLAYER = false;
+            PATH_TO_FRAG = null;
+            ARTIST_TO_FRAG = null;
+            SONG_NAME_TO_FRAG = null;
+        }
     }
 }

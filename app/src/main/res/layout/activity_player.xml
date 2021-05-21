@@ -66,13 +66,6 @@
             android:scaleType="centerCrop"
             android:id="@+id/cover_art"/>
 
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="250dp"
-            android:scaleType="centerCrop"
-            android:layout_alignParentBottom="true"
-            android:id="@+id/imageViewGradient"/>
-
 
     </RelativeLayout>
 
